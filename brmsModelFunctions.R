@@ -27,7 +27,7 @@ null.mod <- function(df){
 Amb.mod <- function(df){
   formula <- bf(abundance ~ (100/(1+exp(-p))) + prev_abund*exp(growth),
                 p ~ 1 + (1 | ID | focal),
-                growth ~ 1 + (1 | ID1 | focal), nl = T) #allows growth intercept (ambient plots) to vary with focal
+                growth ~ 1 + (1 | ID | focal), nl = T) #allows growth intercept (ambient plots) to vary with focal
   # here ID is used to link the two levels of models
   
   prior <- get_prior(formula, data = df, family = poisson())
