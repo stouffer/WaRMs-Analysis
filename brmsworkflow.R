@@ -50,7 +50,7 @@ model_weights(null.model,  ambient.model, removal.model, warming.model,
               weights = "waic") %>%
   as_tibble() %>% 
   rename(weight = value) %>% 
-  mutate(model  = c("amb", "both", "full", "null", "removal", "warm"),
+  mutate(model  = c("null", "amb", "removal", "warm", "both", "full"),
          weight = weight %>% round(digits = 2)) %>% 
   select(model, weight) %>% 
   arrange(desc(weight)) %>% 
