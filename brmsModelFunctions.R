@@ -9,13 +9,12 @@ model.formula <- function(model.name){
   if(model.name == "Null"){
     formula <- bf(
       abundance ~ (100/(1+exp(-q))) + prev_abund,
-      q ~ 1 + (1 | ID | focal),
+      q ~ 1 + (1 | ID | focal), # allows influx to vary by focal individual
       nl=T
     )
   }
 
   if(model.name == "Ambient"){
-    # define the model structure
     formula <- bf(
       abundance ~ (100/(1+exp(-q))) + prev_abund*exp(g),
       q ~ 1 + (1 | ID | focal),
@@ -23,9 +22,40 @@ model.formula <- function(model.name){
       nl = T
     )
   }
-
   if(model.name == "Removal"){
-    # blah blah blah
+    formula <- bf(
+      abundance ~ (100/(1+exp(-q))) + prev_abund*exp(g),
+      q ~ 1 + (1 | ID | focal),
+      g ~ 1+ removal +(1 + removal | ID | focal),
+      nl = T
+    )
+  }
+    if(model.name == "Warm"){
+    # define the model structure
+    formula <- bf(
+      abundance ~  (100/(1+exp(-q)))+ prev_abund*exp(g),
+      q ~ 1 + (1 | ID | focal),
+      g ~ 1 + warming + (1 + warming | ID | focal),
+      nl = T
+   )
+  }
+    if(model.name == "NoInteraction"){
+    # define the model structure
+    formula <- bf(
+      abundance ~ (100/(1+exp(-q))) + prev_abund*exp(g),
+      q ~ 1 + (1 | ID | focal),
+      g ~ 1 + warming + removal + (1 + warming + removal | ID | focal),
+      nl = T
+    )
+  }
+    if(model.name == "Full"){
+    # define the model structure
+    formula <- bf(
+      abundance ~ (100/(1+exp(-q))) + prev_abund*exp(g),
+      q ~ 1 + (1 | ID | focal),
+      g ~ 1 + warming + removal + removal:warming + (1 + warming + removal + removal:warming | ID | focal),
+      nl = T
+    )
   }
 
   return(formula)
