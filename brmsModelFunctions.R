@@ -9,7 +9,7 @@ model.formula <- function(model.name){
   if(model.name == "Null"){
     formula <- bf(
       abundance ~ (100/(1+exp(-q))) + prev_abund,
-      q ~ 1 + (1 | ID | focal),
+      q ~ 1 + (1 | ID | focal), #allows influx intercept (ambient plots) to vary with focal
       nl=T
     )
   }
@@ -19,23 +19,53 @@ model.formula <- function(model.name){
     formula <- bf(
       abundance ~ (100/(1+exp(-q))) + prev_abund*exp(g),
       q ~ 1 + (1 | ID | focal),
-      g ~ 1 + (1 | ID | focal),
-      nl = T
+      g ~ 1 + (1 | ID | focal), #allows growth intercept (ambient plots) to vary with focal
+      nl = T # here ID is used to link the two levels of models
     )
   }
 
 
-Amb.mod <- function(df){
-  formula <- bf(abundance ~ (100/(1+exp(-p))) + prev_abund*exp(growth),
-                p ~ 1 + (1 | ID | focal),
-                growth ~ 1 + (1 | ID | focal), nl = T) #allows growth intercept (ambient plots) to vary with focal
-  # here ID is used to link the two levels of models
-  
-
   if(model.name == "Removal"){
-    # blah blah blah
+    # define the model structure
+    formula <- bf(
+      abundance ~ (100/(1+exp(-q))) + prev_abund*exp(g),
+      q ~ 1 + (1 | ID | focal),
+      g ~ 1 + removal + (1 + removal | ID | focal), # density-dependent growth varies  with removal treatment
+      nl = T
+    )
   }
 
+  if(model.name == "Warm"){
+    # define the model structure
+    formula <- bf(
+      abundance ~ (100/(1+exp(-q))) + prev_abund*exp(g),
+      q ~ 1 + (1 | ID | focal),
+      g ~ 1 + warming + (1 + warming | ID | focal),# density-dependent growth varies with warming treatment
+      nl = T
+    )
+  }
+
+  
+  if(model.name == "NoInteraction"){ # R plus W in Table 1
+    # define the model structure
+    formula <- bf(
+      abundance ~ (100/(1+exp(-q))) + prev_abund*exp(g),
+      q ~ 1 + (1 | ID | focal),
+      g ~ 1 + warming + removal + (1 + warming + removal | ID | focal), # contains both removal and warming treatment but not their interaction
+      nl = T
+    )
+  }
+  
+  if(model.name == "Full"){ # R times W in Table 1
+    # define the model structure
+    formula <- bf(
+      abundance ~ (100/(1+exp(-q))) + prev_abund*exp(g),
+      q ~ 1 + (1 | ID | focal),
+      g ~ 1 + warming + removal + removal:warming + (1 + warming + removal + removal:warming | ID | focal), # both treatments and the interaction
+      nl = T
+    )
+  }
+  
   return(formula)
 }
 
@@ -63,116 +93,15 @@ model.fit <- function(df, model.name){
     family = poisson(link ="identity"),
     prior = prior,
     data = df,
+    # iterations and chains used in manuscript can adjust as necessary
     iter = 6000,
     warmup = 1000,
-    chains = 4,
-    cores = 4, 
+    chains = 2,
+    cores = 2, # specify cores used
     control = list(adapt_delta=0.99, max_treedepth = 20),
-    seed = 12 #set seed
+    seed = 12 # set seed
   )
 
   return(mf)
 }
-
-# influx varies by focal species
-# density-dependent growth varies by focal species and with removal treatment
-Rem.mod <- function(df){
-  formula <- bf(
-    abundance ~ (100/(1+exp(-q))) + prev_abund*exp(g),
-    q ~ 1 + (1 | ID | focal),
-    g ~ 1+ removal +(1 + removal | ID | focal),
-    nl = T
-  )
-  
-  prior <- get_prior(formula, data = df, family = poisson())
-  prior$prior[2] <- "lkj(2)"  # define cor prior as lkj 2
-  prior$prior[8] <- "cauchy(0, 2)" # sd from focal is cauchy
-  
-  Rem <- brm(
-    formula = formula,
-    family = poisson(link ="identity"),
-    prior = prior,
-    data = df,
-    iter = 6000, warmup = 1000, chains = 4, cores = 4, 
-    control = list(adapt_delta=0.99, max_treedepth = 20),
-    seed = 12 #set seed
-  )
-  return(Rem)
-}
-
-# influx varies by focal species
-# density-dependent growth varies by focal species and with warming treatment
-Warm.mod <- function(df){
-  formula <- bf(
-    abundance ~  (100/(1+exp(-q)))+ prev_abund*exp(g),
-    q ~ 1 + (1 | ID | focal),
-    g ~ 1 + warming + (1 + warming | ID | focal),
-    nl = T
-  )
-  
-  prior <- get_prior(formula, data = df, family = poisson())
-  prior$prior[2] <- "lkj(2)"   # define cor prior as lkj 2
-  prior$prior[8] <- "cauchy(0, 2)" # sd from focal is cauchy
-  
-  Warm <- brm(
-    formula = formula,
-    family = poisson(link ="identity"),
-    prior = prior,
-    data = df,
-    iter = 6000, warmup = 1000, chains = 4, cores = 4, 
-    control = list(adapt_delta=0.99, max_treedepth = 20),
-    seed = 12 #set seed
-  )
-  return(Warm)
-}
-
-# influx varies by focal species
-# density-dependent growth varies by focal species and with removal and warming treatments but no interaction
-NoInteraction.mod <- function(df){
-  formula <- bf(
-    abundance ~ (100/(1+exp(-q))) + prev_abund*exp(g),
-    q ~ 1 + (1 | ID | focal),
-    g ~ 1 + warming + removal + (1 + warming + removal | ID | focal),
-    nl = T
-  )
-  
-  prior <- get_prior(formula, data = df, family = poisson())
-  prior$prior[2] <- "lkj(2)"  # define cor prior as lkj 2
-  prior$prior[8] <- "cauchy(0, 2)" # sd from focal is cauchy
-  
-  NoInt <- brm(
-    formula = formula,
-    family = poisson(link ="identity"),
-    prior = prior,
-    data = df,
-    iter = 6000, warmup = 1000, chains = 4, cores = 4, 
-    control = list(adapt_delta=0.99, max_treedepth = 20),
-    seed = 12 #set seed
-  )
-  return(NoInt)
-}
-
-Full.mod <- function(df){
-  formula <- bf(
-    abundance ~ (100/(1+exp(-q))) + prev_abund*exp(g),
-    q ~ 1 + (1 | ID | focal),
-    g ~ 1 + warming + removal + removal:warming + (1 + warming + removal + removal:warming | ID | focal),
-    nl = T
-  )
-  
-  prior <- get_prior(formula, data = df, family = poisson())
-  prior$prior[2] <- "lkj(2)"  # define cor prior as lkj 2
-  prior$prior[8] <- "cauchy(0, 2)" # sd from focal is cauchy
-  Full <- brm(
-    formula = formula,
-    family = poisson(link ="identity"),
-    prior = prior,
-    data = df,
-    iter = 6000, warmup = 1000, chains = 4, cores = 4, 
-    control = list(adapt_delta=0.99, max_treedepth = 20),
-    seed = 12 #set seed
-  )
-  return(Full)
-}
-
 
