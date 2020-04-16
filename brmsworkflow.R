@@ -4,6 +4,9 @@
 # this code fits the baseline, ambient(no treatment effect), and all the treatment effect models to a sample dataset
 ####
 
+# libraries not loaded with other scripts
+require('tidyverse')
+
 # load the sample data frame
 load('example.Rdata')
 
@@ -18,7 +21,6 @@ null.model <- null.mod(CA_low_stan)
 
 # Save model outputs if needed
 # saveRDS(null.model, "nullmodel_CA_Low.rds")
-
 
 # fit ambient or no treatment effect model
 ambient.model <- Amb.mod(CA_low_stan)
@@ -79,5 +81,5 @@ both.warmandremoval.model.beta  <- NoInteraction.mod(CA_low_stan)
 # fit full model with both treatments and interaction
 withinteraction.model.beta <- Full.mod(CA_low_stan)
 
-
+# the same comparison workflow as above can be used on the beta models. 
 
