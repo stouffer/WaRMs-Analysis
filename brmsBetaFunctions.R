@@ -24,8 +24,8 @@ null.mod <- function(df){
 Amb.mod <- function(df){
   formula <- #multilevel formulat
     bf(abundance ~(1/(1+exp(-p))) + prev_abund*exp(growth),
-                p ~ 1 + (1 | ID1 | focal), #allows intercept (immigration) to vary with focal
-                growth ~ 1 + (1 | ID1 | focal), nl = T) #allows growth intercept (ambient plots) to vary with focal
+                p ~ 1 + (1 | ID | focal), #allows intercept (immigration) to vary with focal
+                growth ~ 1 + (1 | ID | focal), nl = T) #allows growth intercept (ambient plots) to vary with focal
 # here ID is used to link the two levels of models
   Amb <- brm(
     formula = formula,
@@ -42,8 +42,8 @@ Amb.mod <- function(df){
 # here, under growth, each treatment and the intercept are allowed to vary by focal
 Rem.mod <- function(df){
   formula <- bf(abundance ~ (1/(1+exp(-p))) + prev_abund*exp(growth),
-                p ~ 1 + (1 | ID1 | focal),
-                growth ~ 1 +removal + (1 + removal| ID1 | focal), nl = T)
+                p ~ 1 + (1 | ID | focal),
+                growth ~ 1 +removal + (1 + removal| ID | focal), nl = T)
   Rem <- brm(
     formula = formula,
     family = zero_inflated_beta(link="identity"),
