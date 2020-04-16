@@ -96,12 +96,12 @@ model.fit <- function(df, model.name){
     # iterations and chains used in manuscript can adjust as necessary
     iter = 6000,
     warmup = 1000,
-    chains = 2,
+    chains = 2, # default is 4 chains
     cores = 2, # specify cores used
     control = list(adapt_delta=0.99, max_treedepth = 20),
     seed = 12 # set seed
   )
-
+  
   return(mf)
 }
 

@@ -4,7 +4,7 @@
 # this code fits the baseline, ambient(no treatment effect), and all the treatment effect models to a sample dataset
 ####
 
-# libraries not loaded with other scripts
+# libraries not loaded with other script
 require('tidyverse')
 
 # load the sample data frame
@@ -12,28 +12,28 @@ load('example.Rdata')
 
 # read in the model-fitting function
 source('brmsModelFunctions.R')
-# functions take dataset, location, elevation, wont work with family bc need a different formula
 
-# data for poisson models CA_low_stan
+######## fit using poisson distribution #####################
+# data for poisson models is called CA_low_stan
 
 # fit null or baseline model 
-null.model <- null.mod(CA_low_stan)
+null.model <- model.fit(CA_low_stan, "Null")
 
 # Save model outputs if needed
 # saveRDS(null.model, "nullmodel_CA_Low.rds")
 
 # fit ambient or no treatment effect model
-ambient.model <- Amb.mod(CA_low_stan)
+ambient.model <- model.fit(CA_low_stan, "Ambient")
 
 # fit single treatment effects model
-warming.model <- Warm.mod(CA_low_stan)
-removal.model <- Rem.mod(CA_low_stan)
+warming.model <- model.fit(CA_low_stan, "Warm")
+removal.model <- model.fit(CA_low_stan, "Removal")
 
 # fit both treatments
-both.warmandremoval.model <- NoInteraction.mod(CA_low_stan)
+both.warmandremoval.model <- model.fit(CA_low_stan, "NoInteraction")
 
 # fit full model with both treatments and interaction
-withinteraction.model <- Full.mod(CA_low_stan)
+withinteraction.model <- model.fit(CA_low_stan, "Full")
 
 # model comparison
 null.model <- add_criterion(null.model, "waic")
@@ -58,28 +58,26 @@ model_weights(null.model,  ambient.model, removal.model, warming.model,
   arrange(desc(weight)) %>% 
   knitr::kable()
 
-### fit using beta distribution
-# model functions have same name
-source('brmsBetaFunctions.R')
-
+######## fit using beta distribution #####################
 # need beta data CA_low_stan_beta 
 # this is the same as the above data but now abundance measures are between 1 and 0
+# results not presented in manuscript
 
 # fit null or baseline model 
-null.model.beta <- null.mod(CA_low_stan)
+null.model.beta <- model.fit.beta(CA_low_stan_beta, "Null")
 
 # fit ambient or no treatment effect model
-ambient.model.beta  <- Amb.mod(CA_low_stan)
+ambient.model.beta  <- model.fit.beta(CA_low_stan_beta, "Ambient")
 
 # fit single treatment effects model
-warming.model.beta  <- Warm.mod(CA_low_stan)
-removal.model.beta  <- Rem.mod(CA_low_stan)
+warming.model.beta  <- model.fit.beta(CA_low_stan_beta, "Warm")
+removal.model.beta  <- model.fit.beta(CA_low_stan_beta, "Removal")
 
 # fit both treatments
-both.warmandremoval.model.beta  <- NoInteraction.mod(CA_low_stan)
+both.warmandremoval.model.beta  <- model.fit.beta(CA_low_stan_beta, "NoInteraction")
 
 # fit full model with both treatments and interaction
-withinteraction.model.beta <- Full.mod(CA_low_stan)
+withinteraction.model.beta <- model.fit.beta(CA_low_stan_beta, "Full")
 
 # the same comparison workflow as above can be used on the beta models. 
 
