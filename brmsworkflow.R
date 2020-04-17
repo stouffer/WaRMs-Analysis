@@ -35,7 +35,7 @@ both.warmandremoval.model <- model.fit(CA_low_stan, "NoInteraction")
 # fit full model with both treatments and interaction
 withinteraction.model <- model.fit(CA_low_stan, "Full")
 
-# model comparison
+# model comparison with WAIC
 null.model <- add_criterion(null.model, "waic")
 ambient.model <- add_criterion(ambient.model, "waic")
 removal.model <- add_criterion(removal.model, "waic") 
@@ -47,6 +47,7 @@ withinteraction.model <- add_criterion(withinteraction.model, "waic")
 CA_low_waic <- loo_compare(null.model,  ambient.model, removal.model, warming.model, 
                        both.warmandremoval.model, withinteraction.model, criterion = "waic")
 
+# model comparison with WAIC weights
 model_weights(null.model,  ambient.model, removal.model, warming.model, 
               both.warmandremoval.model, withinteraction.model,  
               weights = "waic") %>%
