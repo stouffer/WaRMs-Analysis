@@ -30,18 +30,18 @@ warming.model <- model.fit(CA_low_stan, "Warm")
 removal.model <- model.fit(CA_low_stan, "Removal")
 
 # fit both treatments
-both.warmandremoval.model <- model.fit(CA_low_stan, "Removal_plus_warming")
+removalpluswarming.model <- model.fit(CA_low_stan, "Removal_plus_warming")
 
 # fit full model with both treatments and interaction
-withinteraction.model <- model.fit(CA_low_stan, "Removal_times_warming")
+removaltimeswarming.model <- model.fit(CA_low_stan, "Removal_times_warming")
 
 # model comparison with WAIC
 null.model <- add_criterion(null.model, "waic")
 ambient.model <- add_criterion(ambient.model, "waic")
 removal.model <- add_criterion(removal.model, "waic") 
 warming.model <- add_criterion(warming.model, "waic")
-both.warmandremoval.model <- add_criterion(both.warmandremoval.model, "waic")
-withinteraction.model <- add_criterion(withinteraction.model, "waic")
+removalpluswarming.model <- add_criterion(both.warmandremoval.model, "waic")
+removaltimeswarming.model <- add_criterion(withinteraction.model, "waic")
 
 
 CA_low_waic <- loo_compare(null.model,  ambient.model, removal.model, warming.model, 
@@ -53,7 +53,7 @@ model_weights(null.model,  ambient.model, removal.model, warming.model,
               weights = "waic") %>%
   as_tibble() %>% 
   rename(weight = value) %>% 
-  mutate(model  = c("null", "amb", "removal", "warm", "both", "full"),
+  mutate(model  = c("Null", "Ambient", "Removal", "Warm", "Removal_plus_warming", "Removal_times_warming"),
          weight = weight %>% round(digits = 2)) %>% 
   select(model, weight) %>% 
   arrange(desc(weight)) %>% 
