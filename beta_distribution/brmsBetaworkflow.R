@@ -48,11 +48,11 @@ removaltimeswarming.model <- add_criterion(withinteraction.model, "waic")
 
 
 CA_low_waic <- loo_compare(null.model,  ambient.model, removal.model, warming.model, 
-                           both.warmandremoval.model, withinteraction.model, criterion = "waic")
+                           removalpluswarming.model, removaltimeswarming.model, criterion = "waic")
 
 # model comparison with WAIC weights
 model_weights(null.model,  ambient.model, removal.model, warming.model, 
-              both.warmandremoval.model, withinteraction.model,  
+              removalpluswarming.model, removaltimeswarming.model,  
               weights = "waic") %>%
   as_tibble() %>% 
   rename(weight = value) %>% 

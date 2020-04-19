@@ -1,6 +1,5 @@
 ####
-# sample workflow for data analysis from manuscript translated into the BRMS library
-# names of models remain the same for both poisson and beta distribution
+# sample workflow for data analysis from manuscript with the BRMS library
 # this code fits the baseline, ambient(no treatment effect), and all the treatment effect models to a sample dataset
 ####
 
@@ -45,11 +44,11 @@ removaltimeswarming.model <- add_criterion(withinteraction.model, "waic")
 
 
 CA_low_waic <- loo_compare(null.model,  ambient.model, removal.model, warming.model, 
-                       both.warmandremoval.model, withinteraction.model, criterion = "waic")
+                           removalpluswarming.model, removaltimeswarming.model, criterion = "waic")
 
 # model comparison with WAIC weights
 model_weights(null.model,  ambient.model, removal.model, warming.model, 
-              both.warmandremoval.model, withinteraction.model,  
+              removalpluswarming.model, removaltimeswarming.model,  
               weights = "waic") %>%
   as_tibble() %>% 
   rename(weight = value) %>% 
@@ -58,27 +57,4 @@ model_weights(null.model,  ambient.model, removal.model, warming.model,
   select(model, weight) %>% 
   arrange(desc(weight)) %>% 
   knitr::kable()
-
-######## fit using beta distribution #####################
-# need beta data CA_low_stan_beta 
-# this is the same as the above data but now abundance measures are between 1 and 0
-# results not presented in manuscript
-
-# fit null or baseline model 
-null.model.beta <- model.fit.beta(CA_low_stan_beta, "Null")
-
-# fit ambient or no treatment effect model
-ambient.model.beta  <- model.fit.beta(CA_low_stan_beta, "Ambient")
-
-# fit single treatment effects model
-warming.model.beta  <- model.fit.beta(CA_low_stan_beta, "Warm")
-removal.model.beta  <- model.fit.beta(CA_low_stan_beta, "Removal")
-
-# fit both treatments
-both.warmandremoval.model.beta  <- model.fit.beta(CA_low_stan_beta, "NoInteraction")
-
-# fit full model with both treatments and interaction
-withinteraction.model.beta <- model.fit.beta(CA_low_stan_beta, "Full")
-
-# the same comparison workflow as above can be used on the beta models. 
 
