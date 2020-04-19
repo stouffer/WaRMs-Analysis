@@ -30,10 +30,10 @@ warming.model <- model.fit(CA_low_stan, "Warm")
 removal.model <- model.fit(CA_low_stan, "Removal")
 
 # fit both treatments
-both.warmandremoval.model <- model.fit(CA_low_stan, "NoInteraction")
+both.warmandremoval.model <- model.fit(CA_low_stan, "Removal_plus_warming")
 
 # fit full model with both treatments and interaction
-withinteraction.model <- model.fit(CA_low_stan, "Full")
+withinteraction.model <- model.fit(CA_low_stan, "Removal_times_warming")
 
 # model comparison with WAIC
 null.model <- add_criterion(null.model, "waic")

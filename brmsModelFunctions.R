@@ -46,7 +46,7 @@ model.formula <- function(model.name){
   }
 
   
-  if(model.name == "NoInteraction"){ # R plus W in Table 1
+  if(model.name == "Removal_plus_warming"){ # R plus W in Table 1
     # define the model structure
     formula <- bf(
       abundance ~ (100/(1+exp(-q))) + prev_abund*exp(g),
@@ -56,7 +56,7 @@ model.formula <- function(model.name){
     )
   }
   
-  if(model.name == "Full"){ # R times W in Table 1
+  if(model.name == "Removal_times_warming"){ # R times W in Table 1
     # define the model structure
     formula <- bf(
       abundance ~ (100/(1+exp(-q))) + prev_abund*exp(g),
