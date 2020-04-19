@@ -73,11 +73,13 @@ model.prior <- function(df, formula, model.name){
   # used to specify the prior for the random effects  
   prior <- get_prior(formula, data = df, family = poisson())
   if(model.name != "Null"){
-    # define cor prior as lkj 2
-    prior$prior[2] <- "lkj(2)"
 
-    # sd from focal is cauchy
-    prior$prior[8] <- "cauchy(0, 2)"
+      # define cor prior as lkj 2
+      prior$prior[which(prior$class=="cor" & prior$group=="focal")] <- "lkj(2)"
+      
+      # sd from focal is cauchy
+      prior$prior[which(prior$class=="sd" & prior$group=="focal")] <- "cauchy(0, 2)"
+    
   }
 
   return(prior)
@@ -101,7 +103,7 @@ model.fit <- function(df, model.name){
     control = list(adapt_delta=0.99, max_treedepth = 20),
     seed = 12 # set seed
   )
-  
+  print(prior)
   return(mf)
 }
 
