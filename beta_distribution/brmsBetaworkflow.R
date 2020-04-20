@@ -43,8 +43,8 @@ null.model <- add_criterion(null.model, "waic")
 ambient.model <- add_criterion(ambient.model, "waic")
 removal.model <- add_criterion(removal.model, "waic") 
 warming.model <- add_criterion(warming.model, "waic")
-removalpluswarming.model <- add_criterion(both.warmandremoval.model, "waic")
-removaltimeswarming.model <- add_criterion(withinteraction.model, "waic")
+removalpluswarming.model <- add_criterion(removalpluswarming.model, "waic")
+removaltimeswarming.model <- add_criterion(removaltimeswarming.model, "waic")
 
 
 CA_low_waic <- loo_compare(null.model,  ambient.model, removal.model, warming.model, 

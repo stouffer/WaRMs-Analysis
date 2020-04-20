@@ -22,25 +22,25 @@ null.model <- model.fit(CA_low_stan, "Null")
 # saveRDS(null.model, "nullmodel_CA_Low.rds")
 
 # fit ambient or no treatment effect model
-ambient.model <- model.fit(CA_low_stan, "Ambient")
+ambient.model <- model.fit(CH_low_stan, "Ambient")
 
 # fit single treatment effects model
-warming.model <- model.fit(CA_low_stan, "Warm")
-removal.model <- model.fit(CA_low_stan, "Removal")
+warming.model <- model.fit(CH_low_stan, "Warm")
+removal.model <- model.fit(CH_low_stan, "Removal")
 
 # fit both treatments
-removalpluswarming.model <- model.fit(CA_low_stan, "Removal_plus_warming")
+removalpluswarming.model <- model.fit(CH_low_stan, "Removal_plus_warming")
 
 # fit full model with both treatments and interaction
-removaltimeswarming.model <- model.fit(CA_low_stan, "Removal_times_warming")
+removaltimeswarming.model <- model.fit(CH_low_stan, "Removal_times_warming")
 
 # model comparison with WAIC
 null.model <- add_criterion(null.model, "waic")
 ambient.model <- add_criterion(ambient.model, "waic")
 removal.model <- add_criterion(removal.model, "waic") 
 warming.model <- add_criterion(warming.model, "waic")
-removalpluswarming.model <- add_criterion(both.warmandremoval.model, "waic")
-removaltimeswarming.model <- add_criterion(withinteraction.model, "waic")
+removalpluswarming.model <- add_criterion(removalpluswarming.model, "waic")
+removaltimeswarming.model <- add_criterion(removaltimeswarming.model, "waic")
 
 
 CA_low_waic <- loo_compare(null.model,  ambient.model, removal.model, warming.model, 
