@@ -16,23 +16,23 @@ source('brmsModelFunctions.R')
 # data for poisson models is called CA_low_stan
 
 # fit null or baseline model 
-null.model <- model.fit(CA_low_stan, "Null")
+null.model <- model.fit(CH_low_stan, "Null")
 
 # Save model outputs if needed
 # saveRDS(null.model, "nullmodel_CA_Low.rds")
 
 # fit ambient or no treatment effect model
-ambient.model <- model.fit(CH_low_stan, "Ambient")
+ambient.model <- model.fit(CA_low_stan, "Ambient")
 
 # fit single treatment effects model
-warming.model <- model.fit(CH_low_stan, "Warm")
-removal.model <- model.fit(CH_low_stan, "Removal")
+warming.model <- model.fit(CA_low_stan, "Warm")
+removal.model <- model.fit(CA_low_stan, "Removal")
 
 # fit both treatments
-removalpluswarming.model <- model.fit(CH_low_stan, "Removal_plus_warming")
+removalpluswarming.model <- model.fit(CA_low_stan, "Removal_plus_warming")
 
 # fit full model with both treatments and interaction
-removaltimeswarming.model <- model.fit(CH_low_stan, "Removal_times_warming")
+removaltimeswarming.model <- model.fit(CA_low_stan, "Removal_times_warming")
 
 # model comparison with WAIC
 null.model <- add_criterion(null.model, "waic")
