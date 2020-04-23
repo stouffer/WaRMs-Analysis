@@ -16,7 +16,7 @@ source('brmsModelFunctions.R')
 # data for poisson models is called CA_low_stan
 
 # fit null or baseline model 
-null.model <- model.fit(CH_low_stan, "Null")
+null.model <- model.fit(CA_low_stan, "Null")
 
 # Save model outputs if needed
 # saveRDS(null.model, "nullmodel_CA_Low.rds")
