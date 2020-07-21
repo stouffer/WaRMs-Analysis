@@ -1,8 +1,10 @@
+
 ####
-# sample workflow for data analysis from manuscript with the BRMS library
+# sample workflow for data analysis from manuscript translated into the BRMS library
 # this code fits the baseline, ambient(no treatment effect), and all the treatment effect models to a sample dataset
 ####
 
+######## fit using beta distribution #####################
 # libraries not loaded with other script
 require('tidyverse')
 
@@ -10,29 +12,31 @@ require('tidyverse')
 load('example.Rdata')
 
 # read in the model-fitting function
-source('brmsModelFunctions.R')
+source('brmsBetaFunctions.R')
 
-######## fit using poisson distribution #####################
-# data for poisson models is called CA_low_stan
+
+# need beta data CA_low_stan_beta 
+# this is the same as the above data but now abundance measures are between 1 and 0
+# results not presented in manuscript
 
 # fit null or baseline model 
-null.model <- model.fit(CA_low_stan, "Null")
-
-# Save model outputs if needed
-# saveRDS(null.model, "nullmodel_CA_Low.rds")
+null.model.beta <- model.fit.beta(CA_low_stan_beta, "Null")
 
 # fit ambient or no treatment effect model
-ambient.model <- model.fit(CA_low_stan, "Ambient")
+ambient.model.beta  <- model.fit.beta(CA_low_stan_beta, "Ambient")
 
 # fit single treatment effects model
-warming.model <- model.fit(CA_low_stan, "Warm")
-removal.model <- model.fit(CA_low_stan, "Removal")
+warming.model.beta  <- model.fit.beta(CA_low_stan_beta, "Warm")
+removal.model.beta  <- model.fit.beta(CA_low_stan_beta, "Removal")
 
 # fit both treatments
-removalpluswarming.model <- model.fit(CA_low_stan, "Removal_plus_warming")
+removalpluswarming.model  <- model.fit.beta(CA_low_stan_beta, "Removal_plus_warming")
 
 # fit full model with both treatments and interaction
-removaltimeswarming.model <- model.fit(CA_low_stan, "Removal_times_warming")
+removaltimeswarming.model <- model.fit.beta(CA_low_stan_beta, "Removal_times_warming")
+
+# the same comparison workflow as above can be used on the beta models. 
+
 
 # model comparison with WAIC
 null.model <- add_criterion(null.model, "waic")
