@@ -2,6 +2,12 @@
 # functions to fit population dynamics models within a bayesian hierarchical framework
 ####
 
+# model fits are performed with brms
+require(brms)
+
+# allow for parallelization of MCMC chains
+options(mc.cores = parallel::detectCores())
+
 # the non-linear population-dynamics model depends on what treatment effects we include
 model.formula <- function(model.name){
   family <- zero_inflated_beta(link="identity",link_phi="log",link_zi="logit")
