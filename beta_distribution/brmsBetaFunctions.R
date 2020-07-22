@@ -12,9 +12,17 @@ options(mc.cores = parallel::detectCores())
 model.formula <- function(model.name){
   family <- zero_inflated_beta(link="identity",link_phi="log",link_zi="logit")
 
+  # future cover mirrors past cover
+  if(model.name == "Null"){
+    formula <- bf(
+      cover ~ prev_cover,
+      family = family
+    )
+  }
+
   # plots experience recruitment
   # no density-dependent growth
-  if(model.name == "Null"){
+  if(model.name == "Recruitment"){
     formula <- bf(
       cover ~ (0.5/(1+exp(-q))) + prev_cover,
       q ~ 1 + (1 | ID | focal),
