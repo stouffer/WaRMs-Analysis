@@ -5,8 +5,9 @@
 # model fit statistics are computed with brms
 require(brms)
 
-# table is stiched together using functions from the tidyverse
+# contain functions used in preparation of the results table
 require(tidyverse)
+require(knitr)
 
 # given a list of model fits, compile a table with the model comparison information
 results.table <- function(model.fits){
@@ -43,14 +44,13 @@ results.table <- function(model.fits){
   # tidy up the results table
   results <- results %>%
     as_tibble() %>%
-    # rename(weight = value) %>%
+    arrange(desc(Weight)) %>%
     mutate(Model = rownames(results)) %>%
     mutate(WAIC = WAIC %>% round(digits = 2)) %>%
     mutate(pWAIC = pWAIC %>% round(digits = 2)) %>%
     mutate(Weight = Weight %>% round(digits = 2)) %>%
     select(Model, WAIC, pWAIC, Weight) %>%
-    arrange(desc(Weight)) %>%
-    knitr::kable()
+    kable()
 
   return(results)
 }
