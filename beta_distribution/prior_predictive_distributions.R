@@ -2,12 +2,6 @@
 # code that samples from the posterior to demonstrate plausibility of models when not fit to data
 ####
 
-# model fits are performed with brms
-library(brms)
-
-# allow for parallelization of MCMC chains
-options(mc.cores = parallel::detectCores())
-
 # read in the model-fitting functions
 source('brmsBetaFunctions.R')
 
@@ -28,7 +22,7 @@ models <- c(
 model.fits <- sapply(
   models,
   function(model.name,df){
-    fit <- model.fit.beta(df, model.name)
+    fit <- model.fit.beta(df, model.name, sample_prior="only")
     return(fit)
   },
   df = example_data,
