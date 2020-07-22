@@ -14,6 +14,7 @@ example_data <- readRDS('../example.Rdata')
 # define the different models which are to be fit to the data
 models <- c(
   "Null",
+  "Recruitment",
   "Ambient",
   "Warming",
   "Removal",
