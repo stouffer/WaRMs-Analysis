@@ -34,7 +34,7 @@ results.table <- function(model.fits){
 
   # put everything together into a data frame
   results <- data.frame(
-    row.names = models,
+    row.names = names(model.fits),
     WAIC = model.waics,
     pWAIC = model.params,
     Weight = model.weights
