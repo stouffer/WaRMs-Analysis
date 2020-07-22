@@ -1,64 +1,78 @@
-
 ####
-# sample workflow for data analysis from manuscript translated into the BRMS library
-# this code fits the baseline, ambient(no treatment effect), and all the treatment effect models to a sample dataset
+# code that fits all candidate models to an example dataset and generates a model comparison table
 ####
 
-######## fit using beta distribution #####################
-# libraries not loaded with other script
-require('tidyverse')
+# model fits are performed with brms
+library(brms)
 
-# load the sample data frame
-load('example.Rdata')
+# allow for parallelization of MCMC chains
+options(mc.cores = parallel::detectCores())
 
-# read in the model-fitting function
+# read in the model-fitting functions
 source('brmsBetaFunctions.R')
 
+# load the sample data frame
+example_data <- readRDS('../example.Rdata')
 
-# need beta data CA_low_stan_beta 
-# this is the same as the above data but now abundance measures are between 1 and 0
-# results not presented in manuscript
+# define the different models which are to be fit to the data
+models <- c(
+  "Null",
+  "Ambient",
+  "Warming",
+  "Removal",
+  "Removal_+_Warming",
+  "Removal_x_Warming"
+)
 
-# fit null or baseline model 
-null.model.beta <- model.fit.beta(CA_low_stan_beta, "Null")
+# fit each of the above specified models to the data
+model.fits <- sapply(
+  models,
+  function(model.name,df){
+    fit <- model.fit.beta(df, model.name)
+    return(fit)
+  },
+  df = example_data,
+  simplify = FALSE
+)
 
-# fit ambient or no treatment effect model
-ambient.model.beta  <- model.fit.beta(CA_low_stan_beta, "Ambient")
+# compute WAICs for all model fits
+model.waic.summaries <- lapply(
+  model.fits,
+  waic
+)
 
-# fit single treatment effects model
-warming.model.beta  <- model.fit.beta(CA_low_stan_beta, "Warm")
-removal.model.beta  <- model.fit.beta(CA_low_stan_beta, "Removal")
+# extract the estimated WAIC for each model
+model.waics <- sapply(
+  model.waic.summaries,
+  function(x){ x$estimates["waic","Estimate"] }
+)
 
-# fit both treatments
-removalpluswarming.model  <- model.fit.beta(CA_low_stan_beta, "Removal_plus_warming")
+# extract the effective number of parameters
+model.params <- sapply(
+  model.waic.summaries,
+  function(x){ x$estimates["p_waic","Estimate"] }
+)
 
-# fit full model with both treatments and interaction
-removaltimeswarming.model <- model.fit.beta(CA_low_stan_beta, "Removal_times_warming")
+# compute model weights based on WAIC values
+model.weights <- exp(-(model.waics - min(model.waics)) / 2)
 
-# the same comparison workflow as above can be used on the beta models. 
+# put everything together into a data frame
+results <- data.frame(
+  row.names = models,
+  WAIC = model.waics,
+  pWAIC = model.params,
+  Weight = model.weights
+)
 
-
-# model comparison with WAIC
-null.model <- add_criterion(null.model, "waic")
-ambient.model <- add_criterion(ambient.model, "waic")
-removal.model <- add_criterion(removal.model, "waic") 
-warming.model <- add_criterion(warming.model, "waic")
-removalpluswarming.model <- add_criterion(removalpluswarming.model, "waic")
-removaltimeswarming.model <- add_criterion(removaltimeswarming.model, "waic")
-
-
-CA_low_waic <- loo_compare(null.model,  ambient.model, removal.model, warming.model, 
-                           removalpluswarming.model, removaltimeswarming.model, criterion = "waic")
-
-# model comparison with WAIC weights
-model_weights(null.model,  ambient.model, removal.model, warming.model, 
-              removalpluswarming.model, removaltimeswarming.model,  
-              weights = "waic") %>%
-  as_tibble() %>% 
-  rename(weight = value) %>% 
-  mutate(model  = c("Null", "Ambient", "Removal", "Warm", "Removal_plus_warming", "Removal_times_warming"),
-         weight = weight %>% round(digits = 2)) %>% 
-  select(model, weight) %>% 
-  arrange(desc(weight)) %>% 
-  knitr::kable()
+# # model comparison with WAIC weights
+# model_weights(null.model,  ambient.model, removal.model, warming.model, 
+#               removalpluswarming.model, removaltimeswarming.model,  
+#               weights = "waic") %>%
+#   as_tibble() %>% 
+#   rename(weight = value) %>% 
+#   mutate(model  = c("Null", "Ambient", "Removal", "Warm", "Removal_plus_warming", "Removal_times_warming"),
+#          weight = weight %>% round(digits = 2)) %>% 
+#   select(model, weight) %>% 
+#   arrange(desc(weight)) %>% 
+#   knitr::kable()
 
