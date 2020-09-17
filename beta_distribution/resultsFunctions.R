@@ -44,8 +44,8 @@ results.table <- function(model.fits){
   # tidy up the results table
   results <- results %>%
     as_tibble() %>%
-    arrange(desc(Weight)) %>%
     mutate(Model = rownames(results)) %>%
+    arrange(desc(Weight)) %>%
     mutate(WAIC = WAIC %>% round(digits = 2)) %>%
     mutate(pWAIC = pWAIC %>% round(digits = 2)) %>%
     mutate(Weight = Weight %>% round(digits = 2)) %>%
