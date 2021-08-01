@@ -1,7 +1,9 @@
-####
-# functions to post process a list of model fits
-####
-
+#' @title Results table function
+#' @description Functions to post process a list of model fits
+#' @author Michelle 
+#' @param model.fits applies the model.fit.beta function to the list of model names and returns one or a list of brms formulas
+#' @return results.table() returns a table of waic weights of the models run
+#' 
 # model fit statistics are computed with brms
 require(brms)
 
