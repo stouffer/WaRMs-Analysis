@@ -1,6 +1,13 @@
-####
-# functions to fit population dynamics models within a bayesian hierarchical framework
-####
+#' @title Population dynamics model functions
+#' @description These functions fit population dynamics models within a Bayesian hierarchical framework. There is a function for the model 
+#' @author Michelle 
+#' @param model.name can be one or a list from the following options "Null", "Recruitment", "Ambient", "Warming", "Removal", "Removal_+_Warming", "Removal_x_Warming" required for model.formula function 
+#' @param df data frame being analyzed
+#' @param formula out put of model.formula function
+#' @return model.formula() returns one or a list of brms formulas
+#' @return model.prior() returns priors for specified models
+#' @return model.fit.beta() returns brms object of model fits
+
 
 # model fits are performed with brms
 require(brms)
@@ -20,7 +27,7 @@ model.formula <- function(model.name){
     )
   }
 
-  # plots experience recruitment
+  # plots experience recruitment and
   # no density-dependent growth
   if(model.name == "Recruitment"){
     formula <- bf(
@@ -31,7 +38,7 @@ model.formula <- function(model.name){
     )
   }
 
-  # plots experience recruitment
+  # plots experience recruitment and
   # density-dependent growth does not vary by treatment
   if(model.name == "Ambient"){
     formula <- bf(
@@ -43,7 +50,7 @@ model.formula <- function(model.name){
     )
   }
 
-  # plots experience recruitment
+  # plots experience recruitment and
   # density-dependent growth varies with removal treatment
   if(model.name == "Removal"){
     formula <- bf(
@@ -55,7 +62,7 @@ model.formula <- function(model.name){
     )
   }
 
-  # plots experience recruitment
+  # plots experience recruitment and
   # density-dependent growth varies with warming treatment
   if(model.name == "Warming"){
     formula <- bf(
@@ -67,7 +74,7 @@ model.formula <- function(model.name){
     )
   }
 
-  # plots experience recruitment
+  # plots experience recruitment and
   # density-dependent growth varies with removal and warming treatments
   # (called Removal + Warming in Table 1)
   if(model.name == "Removal_+_Warming"){
@@ -80,9 +87,8 @@ model.formula <- function(model.name){
     )
   }
 
-  # plots experience recruitment
+  # plots experience recruitment and 
   # density-dependent growth varies with removal and warming treatments and their interaction
-  # (called Removal x Warming in Table 1)
   if(model.name == "Removal_x_Warming"){ 
     formula <- bf(
       cover ~ (0.5/(1+exp(-q))) + prev_cover*exp(g),
@@ -99,15 +105,16 @@ model.formula <- function(model.name){
 # function that specifies the prior for various population effects
 model.prior <- function(df, formula){
   prior <- get_prior(formula, data = df)
-
-  # set the prior for recruitment so that we can sample from the prior
+  # set b prior just once
   # this prior is broad though the model specification restricts recruitment to be [0,0.5]
-  prior$prior[which(prior$class=="b" & prior$coef=="" & prior$group=="" & prior$nlpar=="q" )] <- "normal(0,5)"
-
-  # set the prior for the population effects effecting growth G
   # as this becomes exp(G) we restrict the range to avoid unbiological predictions (e.g., growth from low percent cover to percent cover > 1)
-  prior$prior[which(prior$class=="b" & prior$coef=="" & prior$group=="" & prior$nlpar=="g" )] <- "normal(0,0.5)"
+  prior$prior[which(prior$class=="b")] <- "normal(0,5)"
 
+
+  # set all sd priors
+  prior$prior[which(prior$class=="sd")] <- "student_t(3, 0, 10)"
+  # set all corr priors
+  prior$prior[which(prior$class=="cor")] <- "lkj(1)"
   return(prior)
 }
 
@@ -126,10 +133,10 @@ model.fit.beta <- function(df, model.name, sample_prior = "no"){
     warmup = 1000,
     chains = 2,
     cores = 2,
-    control = list(adapt_delta=0.90),
+    control = list(adapt_delta=0.90, max_treedepth = 20),
     seed = 12,
     sample_prior = sample_prior
-  )
-  
-  return(mf)
+    )
 }
+
+
